@@ -1,6 +1,8 @@
 package exporters
 
 import (
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
@@ -85,7 +87,10 @@ func (e *UsageEventsExporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *UsageEventsExporter) Collect(ch chan<- prometheus.Metric) {
-	events, err := e.client.GetUsageEvents("", 1000, 0)
+	endDate := time.Now().Format("2006-01-02")
+	startDate := time.Now().AddDate(0, 0, -30).Format("2006-01-02")
+
+	events, err := e.client.GetUsageEvents("", 5000, 0, startDate, endDate)
 	if err != nil {
 		logrus.WithError(err).Error("Failed to get usage events")
 		return
