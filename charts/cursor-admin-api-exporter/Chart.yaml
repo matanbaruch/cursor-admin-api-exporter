@@ -63,3 +63,5 @@ annotations:
       description: "Comprehensive Helm chart with configurable values"
     - kind: added
       description: "Security features including external secrets support"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/containsSecurityUpdates: "false"

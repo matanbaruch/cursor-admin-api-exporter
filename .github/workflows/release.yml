@@ -179,6 +179,15 @@ jobs:
         echo ${{ secrets.GITHUB_TOKEN }} | oras login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
         oras cp ${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter:${{ needs.prepare-version.outputs.new_version }} ${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter:latest
 
+    - name: Push Artifact Hub metadata to OCI registry
+      run: |
+        # Note: ORAS login already done in previous step
+        
+        # Push metadata using the special artifacthub.io tag as per Artifact Hub documentation
+        oras push ${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter:artifacthub.io \
+          --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+          artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+
   commit-version-bump:
     needs: [prepare-version, build-and-push-docker, build-binaries, build-and-push-helm]
     runs-on: ubuntu-latest
