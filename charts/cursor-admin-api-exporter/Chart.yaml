@@ -4,11 +4,11 @@ description: A Helm chart for Cursor Admin API Exporter - Prometheus exporter fo
 
 type: application
 
-version: 0.1.5
+version: 0.1.7
 
-appVersion: "0.1.5"
+appVersion: "0.1.7"
 
-icon: https://cursor.com/favicon.ico
+icon: https://cursor.com/favicon.svg
 
 home: https://github.com/matanbaruch/cursor-admin-api-exporter
 sources:
