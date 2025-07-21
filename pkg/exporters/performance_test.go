@@ -1,13 +1,15 @@
 //go:build performance
 // +build performance
 
-package exporters
+package exporters_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/matanbaruch/cursor-admin-api-exporter/pkg/client"
+	"github.com/matanbaruch/cursor-admin-api-exporter/pkg/exporters"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestPerformance_CursorExporter(t *testing.T) {
@@ -16,7 +18,7 @@ func TestPerformance_CursorExporter(t *testing.T) {
 
 	// Test individual exporter performance
 	t.Run("TeamMembersExporter", func(t *testing.T) {
-		exporter := NewTeamMembersExporter(mockClient)
+		exporter := exporters.NewTeamMembersExporter(mockClient)
 
 		start := time.Now()
 
@@ -43,7 +45,7 @@ func TestPerformance_CursorExporter(t *testing.T) {
 	})
 
 	t.Run("DailyUsageExporter", func(t *testing.T) {
-		exporter := NewDailyUsageExporter(mockClient)
+		exporter := exporters.NewDailyUsageExporter(mockClient)
 
 		start := time.Now()
 
@@ -67,7 +69,7 @@ func TestPerformance_CursorExporter(t *testing.T) {
 	})
 
 	t.Run("SpendingExporter", func(t *testing.T) {
-		exporter := NewSpendingExporter(mockClient)
+		exporter := exporters.NewSpendingExporter(mockClient)
 
 		start := time.Now()
 
@@ -91,7 +93,7 @@ func TestPerformance_CursorExporter(t *testing.T) {
 	})
 
 	t.Run("UsageEventsExporter", func(t *testing.T) {
-		exporter := NewUsageEventsExporter(mockClient)
+		exporter := exporters.NewUsageEventsExporter(mockClient)
 
 		start := time.Now()
 
@@ -116,8 +118,7 @@ func TestPerformance_CursorExporter(t *testing.T) {
 }
 
 func BenchmarkCursorExporter_Collect(b *testing.B) {
-	mockClient := client.NewCursorClient("http://mock-api.com", "test-token")
-	exporter := NewCursorExporter("http://mock-api.com", "test-token")
+	exporter := exporters.NewCursorExporter("http://mock-api.com", "test-token")
 
 	b.ResetTimer()
 
@@ -135,7 +136,7 @@ func BenchmarkCursorExporter_Collect(b *testing.B) {
 
 func BenchmarkTeamMembersExporter_Collect(b *testing.B) {
 	mockClient := client.NewCursorClient("http://mock-api.com", "test-token")
-	exporter := NewTeamMembersExporter(mockClient)
+	exporter := exporters.NewTeamMembersExporter(mockClient)
 
 	b.ResetTimer()
 
@@ -153,7 +154,7 @@ func BenchmarkTeamMembersExporter_Collect(b *testing.B) {
 
 func BenchmarkDailyUsageExporter_Collect(b *testing.B) {
 	mockClient := client.NewCursorClient("http://mock-api.com", "test-token")
-	exporter := NewDailyUsageExporter(mockClient)
+	exporter := exporters.NewDailyUsageExporter(mockClient)
 
 	b.ResetTimer()
 
@@ -171,7 +172,7 @@ func BenchmarkDailyUsageExporter_Collect(b *testing.B) {
 
 func BenchmarkSpendingExporter_Collect(b *testing.B) {
 	mockClient := client.NewCursorClient("http://mock-api.com", "test-token")
-	exporter := NewSpendingExporter(mockClient)
+	exporter := exporters.NewSpendingExporter(mockClient)
 
 	b.ResetTimer()
 
@@ -189,7 +190,7 @@ func BenchmarkSpendingExporter_Collect(b *testing.B) {
 
 func BenchmarkUsageEventsExporter_Collect(b *testing.B) {
 	mockClient := client.NewCursorClient("http://mock-api.com", "test-token")
-	exporter := NewUsageEventsExporter(mockClient)
+	exporter := exporters.NewUsageEventsExporter(mockClient)
 
 	b.ResetTimer()
 

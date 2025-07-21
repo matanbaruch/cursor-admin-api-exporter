@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 	"time"
 
@@ -84,9 +85,11 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		switch r.URL.Path {
-		case "/admin/team/members":
-			response := client.TeamMembersResponse{
-				Members: []client.TeamMember{
+		case "/teams/members":
+			response := struct {
+				TeamMembers []client.TeamMember `json:"teamMembers"`
+			}{
+				TeamMembers: []client.TeamMember{
 					{Name: "John Doe", Email: "john@example.com", Role: "admin"},
 					{Name: "Jane Smith", Email: "jane@example.com", Role: "member"},
 				},
@@ -94,52 +97,151 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
-		case "/admin/usage/daily":
-			response := client.DailyUsageResponse{
-				Usage: []client.DailyUsage{
+		case "/teams/daily-usage-data":
+			var reqBody struct {
+				StartDate int64 `json:"startDate"`
+				EndDate   int64 `json:"endDate"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+				t.Errorf("Failed to decode request: %v", err)
+			}
+			response := struct {
+				Data []struct {
+					Date                 int64  `json:"date"`
+					TotalLinesAdded      int    `json:"totalLinesAdded"`
+					TotalLinesDeleted    int    `json:"totalLinesDeleted"`
+					TotalAccepts         int    `json:"totalAccepts"`
+					TotalRejects         int    `json:"totalRejects"`
+					TotalTabsAccepted    int    `json:"totalTabsAccepted"`
+					ComposerRequests     int    `json:"composerRequests"`
+					ChatRequests         int    `json:"chatRequests"`
+					MostUsedModel        string `json:"mostUsedModel"`
+					TabMostUsedExtension string `json:"tabMostUsedExtension"`
+				} `json:"data"`
+			}{
+				Data: []struct {
+					Date                 int64  `json:"date"`
+					TotalLinesAdded      int    `json:"totalLinesAdded"`
+					TotalLinesDeleted    int    `json:"totalLinesDeleted"`
+					TotalAccepts         int    `json:"totalAccepts"`
+					TotalRejects         int    `json:"totalRejects"`
+					TotalTabsAccepted    int    `json:"totalTabsAccepted"`
+					ComposerRequests     int    `json:"composerRequests"`
+					ChatRequests         int    `json:"chatRequests"`
+					MostUsedModel        string `json:"mostUsedModel"`
+					TabMostUsedExtension string `json:"tabMostUsedExtension"`
+				}{
 					{
-						Date:                     "2023-01-01",
-						LinesAdded:               100,
-						LinesDeleted:             50,
-						SuggestionAcceptanceRate: 0.8,
-						TabsUsed:                 20,
-						ComposerUsed:             5,
-						ChatRequests:             10,
-						MostUsedModel:            "gpt-4",
-						MostUsedExtension:        "python",
+						Date:                 time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC).UnixMilli(),
+						TotalLinesAdded:      100,
+						TotalLinesDeleted:    50,
+						TotalAccepts:         8,
+						TotalRejects:         2,
+						TotalTabsAccepted:    20,
+						ComposerRequests:     5,
+						ChatRequests:         10,
+						MostUsedModel:        "gpt-4",
+						TabMostUsedExtension: "python",
 					},
 				},
 			}
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
-		case "/admin/spending":
-			response := client.SpendingResponse{
-				Spending: []client.SpendingData{
+		case "/teams/spend":
+			var reqBody struct {
+				Page     int `json:"page"`
+				PageSize int `json:"pageSize"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+				t.Errorf("Failed to decode request: %v", err)
+			}
+			response := struct {
+				TeamMemberSpend []struct {
+					SpendCents          int    `json:"spendCents"`
+					FastPremiumRequests int    `json:"fastPremiumRequests"`
+					Email               string `json:"email"`
+				} `json:"teamMemberSpend"`
+				SubscriptionCycleStart int64 `json:"subscriptionCycleStart"`
+				TotalPages             int   `json:"totalPages"`
+			}{
+				TeamMemberSpend: []struct {
+					SpendCents          int    `json:"spendCents"`
+					FastPremiumRequests int    `json:"fastPremiumRequests"`
+					Email               string `json:"email"`
+				}{
 					{
-						MemberEmail:     "john@example.com",
-						SpendCents:      1000,
-						PremiumRequests: 50,
-						Date:            "2023-01-01",
+						SpendCents:          1000,
+						FastPremiumRequests: 50,
+						Email:               "john@example.com",
 					},
 				},
-				Total: 1000,
+				SubscriptionCycleStart: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC).UnixMilli(),
+				TotalPages:             1,
 			}
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
-		case "/admin/usage/events":
-			response := client.UsageEventsResponse{
-				Events: []client.UsageEvent{
+		case "/teams/filtered-usage-events":
+			var reqBody struct {
+				Page     int `json:"page"`
+				PageSize int `json:"pageSize"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+				t.Errorf("Failed to decode request: %v", err)
+			}
+			response := struct {
+				UsageEvents []struct {
+					Timestamp  string `json:"timestamp"`
+					Model      string `json:"model"`
+					KindLabel  string `json:"kindLabel"`
+					TokenUsage *struct {
+						InputTokens      int `json:"inputTokens"`
+						OutputTokens     int `json:"outputTokens"`
+						CacheWriteTokens int `json:"cacheWriteTokens"`
+						CacheReadTokens  int `json:"cacheReadTokens"`
+					} `json:"tokenUsage"`
+					UserEmail  string `json:"userEmail"`
+				} `json:"usageEvents"`
+				Pagination struct {
+					HasNextPage bool `json:"hasNextPage"`
+				} `json:"pagination"`
+			}{
+				UsageEvents: []struct {
+					Timestamp  string `json:"timestamp"`
+					Model      string `json:"model"`
+					KindLabel  string `json:"kindLabel"`
+					TokenUsage *struct {
+						InputTokens      int `json:"inputTokens"`
+						OutputTokens     int `json:"outputTokens"`
+						CacheWriteTokens int `json:"cacheWriteTokens"`
+						CacheReadTokens  int `json:"cacheReadTokens"`
+					} `json:"tokenUsage"`
+					UserEmail  string `json:"userEmail"`
+				}{
 					{
-						EventType:      "completion",
-						UserEmail:      "john@example.com",
-						TokensConsumed: 100,
-						Model:          "gpt-4",
-						Timestamp:      time.Now(),
+						Timestamp: strconv.FormatInt(time.Now().UnixMilli(), 10),
+						Model:     "gpt-4",
+						KindLabel: "completion",
+						TokenUsage: &struct {
+							InputTokens      int `json:"inputTokens"`
+							OutputTokens     int `json:"outputTokens"`
+							CacheWriteTokens int `json:"cacheWriteTokens"`
+							CacheReadTokens  int `json:"cacheReadTokens"`
+						}{
+							InputTokens:      50,
+							OutputTokens:     40,
+							CacheWriteTokens: 10,
+							CacheReadTokens:  0,
+						},
+						UserEmail: "john@example.com",
 					},
 				},
-				Total: 1,
+				Pagination: struct {
+					HasNextPage bool `json:"hasNextPage"`
+				}{
+					HasNextPage: false,
+				},
 			}
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				t.Logf("Failed to encode response: %v", err)
@@ -261,20 +363,20 @@ func TestCursorExporter_ScrapeMetrics(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		switch r.URL.Path {
-		case "/admin/team/members":
-			if err := json.NewEncoder(w).Encode(client.TeamMembersResponse{Members: []client.TeamMember{}}); err != nil {
+		case "/teams/members":
+			if err := json.NewEncoder(w).Encode(struct{ TeamMembers []client.TeamMember }{TeamMembers: []client.TeamMember{}}); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
-		case "/admin/usage/daily":
-			if err := json.NewEncoder(w).Encode(client.DailyUsageResponse{Usage: []client.DailyUsage{}}); err != nil {
+		case "/teams/daily-usage-data":
+			if err := json.NewEncoder(w).Encode(struct{ Data []struct{} }{Data: []struct{}{}}); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
-		case "/admin/spending":
-			if err := json.NewEncoder(w).Encode(client.SpendingResponse{Spending: []client.SpendingData{}}); err != nil {
+		case "/teams/spend":
+			if err := json.NewEncoder(w).Encode(struct{ TeamMemberSpend []struct{} }{TeamMemberSpend: []struct{}{}}); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
-		case "/admin/usage/events":
-			if err := json.NewEncoder(w).Encode(client.UsageEventsResponse{Events: []client.UsageEvent{}}); err != nil {
+		case "/teams/filtered-usage-events":
+			if err := json.NewEncoder(w).Encode(struct{ UsageEvents []struct{} }{UsageEvents: []struct{}{}}); err != nil {
 				t.Logf("Failed to encode response: %v", err)
 			}
 		default:
