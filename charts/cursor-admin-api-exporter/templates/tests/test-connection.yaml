@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "cursor-admin-api-exporter.fullname" . }}-test-connection"
+  labels:
+    {{- include "cursor-admin-api-exporter.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "10"
+spec:
+  restartPolicy: Never
+  containers:
+    - name: wget
+      image: busybox
+      command: ['sh', '-c']
+      args: 
+        - |
+          SERVICE_NAME="{{ include "cursor-admin-api-exporter.fullname" . }}"
+          SERVICE_PORT="{{ .Values.service.port }}"
+          SERVICE_URL="$SERVICE_NAME:$SERVICE_PORT"
+          HEALTH_URL="$SERVICE_URL/health"
+          
+          echo "=== Cursor Admin API Exporter Connection Test ==="
+          echo "Service Name: $SERVICE_NAME"
+          echo "Service Port: $SERVICE_PORT"
+          echo "Health URL: $HEALTH_URL"
+          echo "Date: $(date)"
+          echo ""
+          
+          # Initial wait to allow service to be fully ready
+          echo "=== Initial Wait ==="
+          echo "Waiting 10 seconds for service to be fully ready..."
+          sleep 10
+          echo ""
+          
+          # Check DNS resolution first
+          echo "=== DNS Resolution Test ==="
+          echo "Resolving service name: $SERVICE_NAME"
+          
+          # Use nslookup but capture the output and check for successful resolution
+          nslookup_result=$(nslookup "$SERVICE_NAME" 2>&1)
+          echo "$nslookup_result"
+          
+          # Check if we got an IP address (indicates successful resolution)
+          if echo "$nslookup_result" | grep -q "Address: [0-9]"; then
+            SERVICE_IP=$(echo "$nslookup_result" | grep "Address: [0-9]" | head -1 | awk '{print $2}')
+            echo "✓ DNS resolution successful - Service IP: $SERVICE_IP"
+          else
+            echo "✗ DNS resolution failed - no IP address found"
+            exit 1
+          fi
+          echo ""
+          
+          # Check port connectivity using telnet
+          echo "=== Port Connectivity Test ==="
+          echo "Testing port connectivity to $SERVICE_IP:$SERVICE_PORT with timeout..."
+          if echo "" | timeout 5 telnet "$SERVICE_IP" "$SERVICE_PORT" 2>&1 | grep -q "Connected"; then
+            echo "✓ Port $SERVICE_PORT is accessible on $SERVICE_IP"
+          else
+            # Also try with service name
+            echo "Direct IP test inconclusive, trying service name..."
+            if echo "" | timeout 5 telnet "$SERVICE_NAME" "$SERVICE_PORT" 2>&1 | grep -q "Connected"; then
+              echo "✓ Port $SERVICE_PORT is accessible via service name"
+            else
+              echo "⚠ Port connectivity test inconclusive (this is normal for HTTP services)"
+            fi
+          fi
+          echo ""
+          
+          # Retry health check with detailed logging
+          echo "=== Health Check Test ==="
+          echo "Waiting for service to be ready (up to 60 seconds)..."
+          
+          for i in $(seq 1 30); do
+            echo -n "Attempt $i/30... "
+            
+            # Try wget with timeout
+            if wget -qO- --timeout=5 "$HEALTH_URL" >/tmp/response 2>/tmp/wget_error; then
+              echo "✓ SUCCESS!"
+              echo ""
+              echo "=== Health Check Response ==="
+              cat /tmp/response
+              echo ""
+              echo "✓ Health check passed! Service is ready."
+              exit 0
+            else
+              echo "✗ failed"
+              
+              if [ $i -eq 1 ] || [ $((i % 5)) -eq 0 ]; then
+                echo "   Error details:"
+                cat /tmp/wget_error 2>/dev/null | sed 's/^/   /' || echo "   No error details available"
+              fi
+              
+              if [ $i -lt 30 ]; then
+                sleep 2
+              fi
+            fi
+          done
+          
+          echo ""
+          echo "=== Final Diagnosis ==="
+          echo "✗ Failed to connect to $HEALTH_URL after 30 attempts (60 seconds)"
+          echo ""
+          echo "Possible causes:"
+          echo "1. Service is still starting up (needs more time)"
+          echo "2. Service configuration issue"
+          echo "3. Network connectivity problem"
+          echo "4. Application not responding on /health endpoint"
+          echo ""
+          echo "Check the main application logs for more details:"
+          echo "kubectl logs deployment/$SERVICE_NAME"
+          exit 1
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi

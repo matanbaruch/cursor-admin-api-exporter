@@ -1,0 +1,783 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Cursor Admin API Exporter Helm Chart Values",
+  "description": "Schema for Cursor Admin API Exporter Helm chart values.yaml",
+  "type": "object",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Number of Cursor Admin API Exporter replicas to deploy"
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "default": "ghcr.io/matanbaruch/cursor-admin-api-exporter",
+          "description": "Cursor Admin API Exporter image repository"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent",
+          "description": "Image pull policy"
+        },
+        "tag": {
+          "type": "string",
+          "default": "",
+          "description": "Cursor Admin API Exporter image tag (defaults to appVersion if empty)"
+        }
+      },
+      "required": ["repository", "pullPolicy"],
+      "additionalProperties": false
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "default": [],
+      "description": "Docker registry secret names as an array"
+    },
+    "nameOverride": {
+      "type": "string",
+      "default": "",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "default": "",
+      "description": "Override the full name of the chart"
+    },
+    "cursor": {
+      "type": "object",
+      "properties": {
+        "apiUrl": {
+          "type": "string",
+          "format": "uri",
+          "default": "https://api.cursor.com",
+          "description": "Cursor Admin API URL"
+        },
+        "apiToken": {
+          "type": "string",
+          "default": "",
+          "description": "Cursor Admin API token (will be stored in a secret)"
+        }
+      },
+      "required": ["apiUrl"],
+      "additionalProperties": false,
+      "description": "Cursor Admin API configuration"
+    },
+    "externalSecret": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable External Secret Operator integration"
+        },
+        "secretStoreRef": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Secret store name"
+            },
+            "kind": {
+              "type": "string",
+              "enum": ["SecretStore", "ClusterSecretStore"],
+              "default": "SecretStore",
+              "description": "Secret store kind"
+            }
+          },
+          "required": ["name"],
+          "additionalProperties": false
+        },
+        "secretName": {
+          "type": "string",
+          "default": "",
+          "description": "Target secret name (optional, defaults to the same as regular secret)"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretKey": {
+                "type": "string"
+              },
+              "remoteRef": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "property": {
+                    "type": "string"
+                  }
+                },
+                "required": ["key"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["secretKey", "remoteRef"],
+            "additionalProperties": false
+          },
+          "default": [],
+          "description": "Remote references for the external secret"
+        },
+        "refreshInterval": {
+          "type": "string",
+          "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)$",
+          "default": "1h",
+          "description": "Refresh interval for the external secret"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Additional annotations for the ExternalSecret resource"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Additional labels for the ExternalSecret resource"
+        }
+      },
+      "additionalProperties": false,
+      "description": "External Secret configuration"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "listenAddress": {
+          "type": "string",
+          "pattern": "^:[0-9]+$|^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+$",
+          "default": ":8080",
+          "description": "Address and port to listen on"
+        },
+        "metricsPath": {
+          "type": "string",
+          "pattern": "^/.*",
+          "default": "/metrics",
+          "description": "Path where metrics are exposed"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "description": "Log level"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Application configuration"
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "default": true,
+          "description": "Specifies whether a service account should be created"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Annotations to add to the service account"
+        },
+        "name": {
+          "type": "string",
+          "default": "",
+          "description": "The name of the service account to use"
+        }
+      },
+      "additionalProperties": false
+    },
+    "podAnnotations": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "description": "Annotations to add to the pod"
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "properties": {
+        "fsGroup": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runAsNonRoot": {
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runAsGroup": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "supplementalGroups": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "additionalProperties": true,
+      "description": "Pod security context"
+    },
+    "securityContext": {
+      "type": "object",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "type": "boolean"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "drop": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "readOnlyRootFilesystem": {
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runAsGroup": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true,
+      "description": "Container security context"
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+          "default": "ClusterIP",
+          "description": "Kubernetes service type"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 8080,
+          "description": "Service port"
+        },
+        "targetPort": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1, "maximum": 65535},
+            {"type": "string"}
+          ],
+          "default": 8080,
+          "description": "Target port"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Service annotations"
+        },
+        "nodePort": {
+          "type": "integer",
+          "minimum": 30000,
+          "maximum": 32767,
+          "description": "Node port (when type is NodePort)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable ingress"
+        },
+        "className": {
+          "type": "string",
+          "default": "",
+          "description": "Ingress class name"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Ingress annotations"
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Path"
+                    },
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Exact", "Prefix", "ImplementationSpecific"],
+                      "description": "Path type"
+                    }
+                  },
+                  "required": ["path", "pathType"],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": ["host", "paths"],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "tls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "pattern": "^[0-9]+(m|)$|^[0-9]*\\.[0-9]+$"
+            },
+            "memory": {
+              "type": "string",
+              "pattern": "^[0-9]+(Ei|Pi|Ti|Gi|Mi|Ki|E|P|T|G|M|K|)$"
+            }
+          },
+          "additionalProperties": true
+        },
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "pattern": "^[0-9]+(m|)$|^[0-9]*\\.[0-9]+$"
+            },
+            "memory": {
+              "type": "string",
+              "pattern": "^[0-9]+(Ei|Pi|Ti|Gi|Mi|Ki|E|P|T|G|M|K|)$"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false,
+      "description": "Resource limits and requests"
+    },
+    "livenessProbe": {
+      "type": "object",
+      "properties": {
+        "httpGet": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "port": {
+              "oneOf": [
+                {"type": "integer"},
+                {"type": "string"}
+              ]
+            },
+            "scheme": {
+              "type": "string",
+              "enum": ["HTTP", "HTTPS"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "successThreshold": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true,
+      "description": "Liveness probe configuration"
+    },
+    "readinessProbe": {
+      "type": "object",
+      "properties": {
+        "httpGet": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "port": {
+              "oneOf": [
+                {"type": "integer"},
+                {"type": "string"}
+              ]
+            },
+            "scheme": {
+              "type": "string",
+              "enum": ["HTTP", "HTTPS"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "successThreshold": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true,
+      "description": "Readiness probe configuration"
+    },
+    "autoscaling": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable horizontal pod autoscaling"
+        },
+        "minReplicas": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Minimum number of replicas"
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "Maximum number of replicas"
+        },
+        "targetCPUUtilizationPercentage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Target CPU utilization percentage"
+        },
+        "targetMemoryUtilizationPercentage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Target memory utilization percentage"
+        }
+      },
+      "additionalProperties": false
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "description": "Node selector labels"
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string",
+            "enum": ["Equal", "Exists"]
+          },
+          "value": {
+            "type": "string"
+          },
+          "effect": {
+            "type": "string",
+            "enum": ["NoSchedule", "PreferNoSchedule", "NoExecute"]
+          },
+          "tolerationSeconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "default": [],
+      "description": "Pod tolerations"
+    },
+    "affinity": {
+      "type": "object",
+      "additionalProperties": true,
+      "default": {},
+      "description": "Pod affinity rules"
+    },
+    "serviceMonitor": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Create ServiceMonitor resource for Prometheus Operator"
+        },
+        "additionalLabels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Additional labels for ServiceMonitor"
+        },
+        "interval": {
+          "type": "string",
+          "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)$",
+          "default": "30s",
+          "description": "Scrape interval"
+        },
+        "scrapeTimeout": {
+          "type": "string",
+          "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)$",
+          "default": "10s",
+          "description": "Scrape timeout"
+        },
+        "metricRelabelings": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": [],
+          "description": "Metric relabeling configurations"
+        },
+        "targetLabels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Target labels"
+        },
+        "sampleLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Sample limit per scrape"
+        }
+      },
+      "additionalProperties": false
+    },
+    "podDisruptionBudget": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable pod disruption budget"
+        },
+        "minAvailable": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1},
+            {"type": "string", "pattern": "^[0-9]+%$"}
+          ],
+          "description": "Minimum available pods"
+        },
+        "maxUnavailable": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1},
+            {"type": "string", "pattern": "^[0-9]+%$"}
+          ],
+          "description": "Maximum unavailable pods"
+        }
+      },
+      "additionalProperties": false
+    },
+    "extraEnvVars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "valueFrom": {
+            "type": "object"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "default": [],
+      "description": "Additional environment variables"
+    },
+    "extraEnvVarsSecret": {
+      "type": "string",
+      "default": "",
+      "description": "Name of existing secret containing extra environment variables"
+    },
+    "extraEnvVarsConfigMap": {
+      "type": "string",
+      "default": "",
+      "description": "Name of existing configmap containing extra environment variables"
+    },
+    "extraVolumes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Additional volumes for the pod"
+    },
+    "extraVolumeMounts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": [],
+      "description": "Additional volume mounts for the container"
+    },
+    "podLabels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "description": "Additional labels for the pod"
+    },
+    "strategy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Recreate", "RollingUpdate"],
+          "default": "RollingUpdate",
+          "description": "Deployment strategy type"
+        },
+        "rollingUpdate": {
+          "type": "object",
+          "properties": {
+            "maxUnavailable": {
+              "oneOf": [
+                {"type": "integer", "minimum": 0},
+                {"type": "string", "pattern": "^[0-9]+%$"}
+              ],
+              "description": "Maximum unavailable pods during rolling update"
+            },
+            "maxSurge": {
+              "oneOf": [
+                {"type": "integer", "minimum": 0},
+                {"type": "string", "pattern": "^[0-9]+%$"}
+              ],
+              "description": "Maximum surge pods during rolling update"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Deployment strategy"
+    }
+  },
+  "additionalProperties": false
+}
