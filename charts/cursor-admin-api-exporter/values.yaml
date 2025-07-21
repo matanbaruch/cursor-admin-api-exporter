@@ -1,0 +1,155 @@
+# Default values for cursor-admin-api-exporter.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/matanbaruch/cursor-admin-api-exporter
+  pullPolicy: IfNotPresent
+  tag: ""  # Will be set to appVersion if empty
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Cursor Admin API configuration
+cursor:
+  # Cursor API URL
+  apiUrl: "https://api.cursor.com"
+  # Cursor API token - will be stored in a secret
+  # You should set this via --set or create the secret manually
+  apiToken: ""
+
+# External Secret configuration
+externalSecret:
+  # Enable External Secret Operator integration
+  enabled: false
+  # Secret Store reference
+  secretStoreRef:
+    name: ""
+    kind: SecretStore  # or ClusterSecretStore
+  # Target secret name (optional, defaults to the same as regular secret)
+  secretName: ""
+  # Remote references for the external secret
+  data: []
+    # Example:
+    # - secretKey: cursor-api-token
+    #   remoteRef:
+    #     key: cursor/api-token
+    #     property: token  # optional, if the secret contains multiple properties
+  # Refresh interval for the external secret
+  refreshInterval: "1h"
+  # Additional annotations for the ExternalSecret resource
+  annotations: {}
+  # Additional labels for the ExternalSecret resource
+  labels: {}
+
+# Application configuration
+config:
+  # Address and port to listen on
+  listenAddress: ":8080"
+  # Path where metrics are exposed
+  metricsPath: "/metrics"
+  # Log level (debug, info, warn, error)
+  logLevel: "info"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 65534
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Prometheus ServiceMonitor configuration
+serviceMonitor:
+  enabled: false
+  # Additional labels for the ServiceMonitor
+  labels: {}
+  # Scrape interval
+  interval: 30s
+  # Scrape timeout
+  scrapeTimeout: 10s
+  # Honorlabels chooses the metric's labels on collisions with target labels
+  honorLabels: false
+  # Additional annotations for the ServiceMonitor
+  annotations: {}
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Horizontal Pod Autoscaler configuration
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Probes configuration
+probes:
+  readiness:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1

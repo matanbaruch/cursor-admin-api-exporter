@@ -1,0 +1,61 @@
+repos:
+  # Go hooks
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: 'go fmt'
+        description: 'Run go fmt'
+        entry: make fmt
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+      
+      - id: go-vet
+        name: 'go vet'
+        description: 'Run go vet'
+        entry: go vet ./...
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+      
+      - id: golangci-lint
+        name: 'golangci-lint'
+        description: 'Run golangci-lint'
+        entry: make lint
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+      
+      - id: go-test
+        name: 'go test'
+        description: 'Run go test'
+        entry: make test
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+      
+      - id: go-mod-tidy
+        name: 'go mod tidy'
+        description: 'Run go mod tidy'
+        entry: go mod tidy
+        language: system
+        files: '^go\.(mod|sum)$'
+        pass_filenames: false
+
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$'
+        types: [go]
+      - id: end-of-file-fixer
+        types: [go]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+# Global settings
+fail_fast: false
+default_stages: [pre-commit]

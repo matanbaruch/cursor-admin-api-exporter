@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cursor-admin-api-exporter.fullname" . }}
+  labels:
+    {{- include "cursor-admin-api-exporter.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "cursor-admin-api-exporter.selectorLabels" . | nindent 4 }}

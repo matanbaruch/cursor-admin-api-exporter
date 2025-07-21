@@ -1,0 +1,282 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/docs.yml'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  prepare-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      new_tag: ${{ steps.bump.outputs.new_tag }}
+      current_version: ${{ steps.get_version.outputs.current_version }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get current version
+      id: get_version
+      run: |
+        CURRENT_VERSION=$(grep '^version:' charts/cursor-admin-api-exporter/Chart.yaml | awk '{print $2}')
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+    - name: Calculate new version
+      id: bump
+      run: |
+        CURRENT_VERSION="${{ steps.get_version.outputs.current_version }}"
+        IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+        MAJOR=${VERSION_PARTS[0]}
+        MINOR=${VERSION_PARTS[1]}
+        PATCH=${VERSION_PARTS[2]}
+        NEW_PATCH=$((PATCH + 1))
+        NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+        NEW_TAG="v$NEW_VERSION"
+
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+  build-and-push-docker:
+    needs: prepare-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=raw,value=latest
+          type=raw,value=${{ needs.prepare-version.outputs.new_version }}
+          type=raw,value=${{ needs.prepare-version.outputs.new_tag }}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Attest Docker image
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        subject-digest: ${{ steps.build.outputs.digest }}
+        push-to-registry: true
+
+  build-binaries:
+    needs: prepare-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Build binaries for multiple platforms
+      run: |
+        mkdir -p bin
+        make build-all
+
+    - name: Generate checksums
+      run: |
+        cd bin
+        sha256sum * > checksums.txt
+        cat checksums.txt
+
+    - name: Attest binary artifacts
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-path: 'bin/*'
+
+    - name: Upload binaries as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: cursor-admin-api-exporter-binaries-${{ needs.prepare-version.outputs.new_version }}
+        path: |
+          bin/
+        retention-days: 30
+
+  build-and-push-helm:
+    needs: prepare-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v4
+      with:
+        version: '3.12.0'
+
+    - name: Configure Helm for OCI
+      run: |
+        echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
+
+    - name: Set up ORAS
+      uses: oras-project/setup-oras@v1
+
+    - name: Package Helm chart
+      run: |
+        helm package charts/cursor-admin-api-exporter --version ${{ needs.prepare-version.outputs.new_version }}
+
+    - name: Push Helm chart to OCI registry
+      run: |
+        helm push cursor-admin-api-exporter-${{ needs.prepare-version.outputs.new_version }}.tgz oci://${{ env.REGISTRY }}/${{ github.repository }}/charts
+        
+        echo ${{ secrets.GITHUB_TOKEN }} | oras login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
+        oras cp ${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter:${{ needs.prepare-version.outputs.new_version }} ${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter:latest
+
+  commit-version-bump:
+    needs: [prepare-version, build-and-push-docker, build-binaries, build-and-push-helm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Apply version bump and commit
+      run: |
+        NEW_VERSION="${{ needs.prepare-version.outputs.new_version }}"
+        NEW_TAG="${{ needs.prepare-version.outputs.new_tag }}"
+        CURRENT_VERSION="${{ needs.prepare-version.outputs.current_version }}"
+
+        sed -i "s/^version: .*/version: $NEW_VERSION/" charts/cursor-admin-api-exporter/Chart.yaml
+        sed -i "s/^appVersion: .*/appVersion: \"$NEW_VERSION\"/" charts/cursor-admin-api-exporter/Chart.yaml
+
+        if [ -f "CHANGELOG.md" ]; then
+          CURRENT_DATE=$(date +%Y-%m-%d)
+          sed -i "s/## \[Unreleased\]/## [$NEW_VERSION] - $CURRENT_DATE/" CHANGELOG.md
+          sed -i "/^## \[$NEW_VERSION\]/i\\## [Unreleased]\\n" CHANGELOG.md
+          sed -i "/^\[Unreleased\]:/i\\[$NEW_VERSION]: https://github.com/${{ github.repository }}/compare/v$CURRENT_VERSION...$NEW_TAG" CHANGELOG.md
+          sed -i "s|\[Unreleased\]: https://github.com/${{ github.repository }}/compare/.*\.\.\.HEAD|[Unreleased]: https://github.com/${{ github.repository }}/compare/$NEW_TAG...HEAD|" CHANGELOG.md
+          git add CHANGELOG.md
+        fi
+
+        git add charts/cursor-admin-api-exporter/Chart.yaml
+        git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
+        git push origin main
+
+  push-tag:
+    needs: [prepare-version, build-and-push-docker, build-binaries, build-and-push-helm, commit-version-bump]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Create and push tag
+      run: |
+        NEW_TAG="${{ needs.prepare-version.outputs.new_tag }}"
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+
+  create-release:
+    needs: [prepare-version, build-and-push-docker, build-binaries, build-and-push-helm, commit-version-bump, push-tag]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ needs.prepare-version.outputs.new_tag }}
+        name: Release ${{ needs.prepare-version.outputs.new_tag }}
+        body: |
+          ## Release ${{ needs.prepare-version.outputs.new_tag }}
+
+          ### Installation
+
+          #### Docker
+          ```bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare-version.outputs.new_version }}
+          ```
+
+          #### Helm
+          ```bash
+          helm install cursor-admin-api-exporter oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter --version ${{ needs.prepare-version.outputs.new_version }}
+          ```
+
+          ### Artifacts
+          - Docker image: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare-version.outputs.new_version }}`
+          - Helm chart: `oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/cursor-admin-api-exporter:${{ needs.prepare-version.outputs.new_version }}`
+          - Go binaries: Available as workflow artifacts with build provenance attestations
+
+          ### Security & Attestations
+          All artifacts in this release include signed build provenance attestations using [Sigstore](https://sigstore.dev/).
+        draft: false
+        prerelease: false

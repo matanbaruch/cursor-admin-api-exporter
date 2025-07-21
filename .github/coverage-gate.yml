@@ -1,0 +1,47 @@
+coverage:
+  target: 80.0
+  minimum: 60.0
+  maximum_decrease: 0.5
+  
+  file_patterns:
+    include:
+      - "pkg/**/*.go"
+      - "main.go"
+    exclude:
+      - "**/*_test.go"
+      - "**/testdata/**"
+      - "**/mocks/**"
+      - "**/*.pb.go"
+      - "**/vendor/**"
+      - "scripts/**"
+      - "docs/**"
+      - "charts/**"
+      - ".github/**"
+
+  thresholds:
+    - package: "pkg/client"
+      minimum: 80.0
+    - package: "pkg/exporters"
+      minimum: 85.0
+    - package: "pkg/utils"
+      minimum: 90.0
+
+  reporting:
+    formats:
+      - html
+      - json
+      - lcov
+      - badge
+    output_directory: "coverage-reports"
+    artifact_retention_days: 30
+    
+  branch_protection:
+    enabled: true
+    required_contexts:
+      - "coverage-gate"
+    enforce_admins: false
+    
+  notifications:
+    pr_comment: true
+    status_check: true
+    failure_threshold: 0.5

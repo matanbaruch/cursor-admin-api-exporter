@@ -1,0 +1,65 @@
+apiVersion: v2
+name: cursor-admin-api-exporter
+description: A Helm chart for Cursor Admin API Exporter - Prometheus exporter for Cursor Admin API metrics
+
+type: application
+
+version: 0.1.0
+
+appVersion: "0.1.0"
+
+icon: https://cursor.com/favicon.ico
+
+home: https://github.com/matanbaruch/cursor-admin-api-exporter
+sources:
+  - https://github.com/matanbaruch/cursor-admin-api-exporter
+keywords:
+  - cursor
+  - prometheus
+  - exporter
+  - monitoring
+  - metrics
+  - admin-api
+annotations:
+  category: Monitoring
+  # Artifact Hub annotations
+  artifacthub.io/category: monitoring-logging
+  artifacthub.io/license: MIT
+  artifacthub.io/containsSecurityUpdates: "true"
+  artifacthub.io/images: |
+    - name: cursor-admin-api-exporter
+      image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
+      platforms:
+        - linux/amd64
+        - linux/arm64
+  artifacthub.io/links: |
+    - name: GitHub Repository
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter
+    - name: Documentation
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter/blob/main/README.md
+    - name: Changelog
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter/blob/main/CHANGELOG.md
+    - name: Issues
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter/issues
+    - name: support
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter/issues/new
+    - name: Architecture Documentation
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter/blob/main/ARCHITECTURE.md
+    - name: Security Policy
+      url: https://github.com/matanbaruch/cursor-admin-api-exporter/blob/main/SECURITY.md
+  artifacthub.io/maintainers: |
+    - name: Your Name
+      email: your.email@example.com
+  artifacthub.io/recommendations: |
+    - url: https://artifacthub.io/packages/helm/prometheus-community/prometheus
+    - url: https://artifacthub.io/packages/helm/grafana/grafana
+    - url: https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
+  artifacthub.io/changes: |
+    - kind: added
+      description: "Initial release of Cursor Admin API Exporter"
+    - kind: added
+      description: "Support for team members, daily usage, spending, and usage events metrics"
+    - kind: added
+      description: "Comprehensive Helm chart with configurable values"
+    - kind: added
+      description: "Security features including external secrets support"

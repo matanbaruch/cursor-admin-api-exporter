@@ -1,0 +1,181 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g @mermaid-js/mermaid-cli
+          npm install -g markdown-it markdown-it-anchor markdown-it-toc-done-right
+
+      - name: Create documentation site
+        run: |
+          mkdir -p _site
+          
+          # Copy main documentation files
+          cp README.md _site/index.md
+          cp CHANGELOG.md _site/
+          cp CONTRIBUTING.md _site/
+          cp ARCHITECTURE.md _site/
+          cp SECURITY.md _site/
+          
+          # Create HTML from markdown
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Cursor Admin API Exporter</title>
+              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+              <style>
+                  .markdown-body {
+                      box-sizing: border-box;
+                      min-width: 200px;
+                      max-width: 980px;
+                      margin: 0 auto;
+                      padding: 45px;
+                  }
+                  .navbar {
+                      background-color: #24292e;
+                      padding: 1rem;
+                      margin-bottom: 2rem;
+                  }
+                  .navbar a {
+                      color: white;
+                      text-decoration: none;
+                      margin-right: 1rem;
+                  }
+                  .navbar a:hover {
+                      text-decoration: underline;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="navbar">
+                  <a href="index.html">Home</a>
+                  <a href="changelog.html">Changelog</a>
+                  <a href="contributing.html">Contributing</a>
+                  <a href="architecture.html">Architecture</a>
+                  <a href="security.html">Security</a>
+              </div>
+              <article class="markdown-body">
+          EOF
+          
+          # Convert README to HTML content
+          node -e "
+          const fs = require('fs');
+          const MarkdownIt = require('markdown-it');
+          const md = new MarkdownIt();
+          const content = fs.readFileSync('README.md', 'utf8');
+          console.log(md.render(content));
+          " >> _site/index.html
+          
+          echo '</article></body></html>' >> _site/index.html
+          
+          # Create other pages
+          for file in CHANGELOG CONTRIBUTING ARCHITECTURE SECURITY; do
+              cat > _site/${file,,}.html << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${file} - Cursor Admin API Exporter</title>
+              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+              <style>
+                  .markdown-body {
+                      box-sizing: border-box;
+                      min-width: 200px;
+                      max-width: 980px;
+                      margin: 0 auto;
+                      padding: 45px;
+                  }
+                  .navbar {
+                      background-color: #24292e;
+                      padding: 1rem;
+                      margin-bottom: 2rem;
+                  }
+                  .navbar a {
+                      color: white;
+                      text-decoration: none;
+                      margin-right: 1rem;
+                  }
+                  .navbar a:hover {
+                      text-decoration: underline;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="navbar">
+                  <a href="index.html">Home</a>
+                  <a href="changelog.html">Changelog</a>
+                  <a href="contributing.html">Contributing</a>
+                  <a href="architecture.html">Architecture</a>
+                  <a href="security.html">Security</a>
+              </div>
+              <article class="markdown-body">
+          EOF
+          
+              node -e "
+              const fs = require('fs');
+              const MarkdownIt = require('markdown-it');
+              const md = new MarkdownIt();
+              const content = fs.readFileSync('${file}.md', 'utf8');
+              console.log(md.render(content));
+              " >> _site/${file,,}.html
+              
+              echo '</article></body></html>' >> _site/${file,,}.html
+          done
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
