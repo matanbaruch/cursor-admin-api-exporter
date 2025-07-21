@@ -65,7 +65,7 @@ docker run -d \
   -e LISTEN_ADDRESS=:8080 \
   -e METRICS_PATH=/metrics \
   -e LOG_LEVEL=info \
-  ghcr.io/yourusername/cursor-admin-api-exporter:latest
+  ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
 ```
 
 ### Docker Compose Configuration
@@ -76,7 +76,7 @@ version: '3.8'
 
 services:
   cursor-admin-api-exporter:
-    image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+    image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
     ports:
       - "8080:8080"
     environment:
@@ -135,7 +135,7 @@ spec:
     spec:
       containers:
       - name: cursor-exporter
-        image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+        image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
         ports:
         - containerPort: 8080
         env:
@@ -190,7 +190,7 @@ export CURSOR_API_TOKEN="your_token_here"
 # docker-compose.yml
 services:
   cursor-exporter:
-    image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+    image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
     secrets:
       - cursor_api_token
     environment:
@@ -285,7 +285,7 @@ export LOG_LEVEL="info"
 # docker-compose.yml
 services:
   cursor-exporter:
-    image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+    image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
     deploy:
       resources:
         limits:
@@ -352,7 +352,7 @@ export CURSOR_API_URL="https://custom-api.cursor.com"
 # docker-compose.yml for multiple teams
 services:
   cursor-exporter-team1:
-    image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+    image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
     ports:
       - "8080:8080"
     environment:
@@ -360,7 +360,7 @@ services:
       - LISTEN_ADDRESS=:8080
       
   cursor-exporter-team2:
-    image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+    image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
     ports:
       - "8081:8080"
     environment:
@@ -374,7 +374,7 @@ services:
 # docker-compose.yml
 services:
   cursor-exporter:
-    image: ghcr.io/yourusername/cursor-admin-api-exporter:latest
+    image: ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s

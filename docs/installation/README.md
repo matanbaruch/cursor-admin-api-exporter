@@ -23,7 +23,7 @@ docker run -d \
   --name cursor-exporter \
   -p 8080:8080 \
   -e CURSOR_API_TOKEN=your_token_here \
-  ghcr.io/yourusername/cursor-admin-api-exporter:latest
+  ghcr.io/matanbaruch/cursor-admin-api-exporter:latest
 ```
 
 ## Platform Support
@@ -141,8 +141,8 @@ If you encounter issues during installation:
 
 1. Check the [Troubleshooting Guide](../troubleshooting.md)
 2. Review the [Configuration Guide](../configuration.md)
-3. Search [GitHub Issues](https://github.com/yourusername/cursor-admin-api-exporter/issues)
-4. Ask in [GitHub Discussions](https://github.com/yourusername/cursor-admin-api-exporter/discussions)
+3. Search [GitHub Issues](https://github.com/matanbaruch/cursor-admin-api-exporter/issues)
+4. Ask in [GitHub Discussions](https://github.com/matanbaruch/cursor-admin-api-exporter/discussions)
 
 ---
 

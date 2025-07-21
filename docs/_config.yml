@@ -1,7 +1,7 @@
 # GitHub Pages configuration
 title: "Cursor Admin API Exporter"
 description: "A Prometheus exporter for Cursor Admin API that provides comprehensive metrics about your Cursor usage"
-url: "https://yourusername.github.io"
+url: "https://matanbaruch.github.io"
 baseurl: "/cursor-admin-api-exporter"
 
 # Theme - Just the Docs with ReadTheDocs styling
@@ -28,7 +28,7 @@ search:
 nav_sort: order
 nav_external_links:
   - title: "GitHub Repository"
-    url: "https://github.com/yourusername/cursor-admin-api-exporter"
+    url: "https://github.com/matanbaruch/cursor-admin-api-exporter"
     hide_icon: false
   - title: "Cursor Documentation"
     url: "https://docs.cursor.so"
@@ -40,7 +40,7 @@ footer_content: "Copyright &copy; 2024 Cursor Admin API Exporter. Distributed un
 # GitHub integration
 gh_edit_link: true
 gh_edit_link_text: "Edit this page on GitHub"
-gh_edit_repository: "https://github.com/yourusername/cursor-admin-api-exporter"
+gh_edit_repository: "https://github.com/matanbaruch/cursor-admin-api-exporter"
 gh_edit_branch: "main"
 gh_edit_source: docs
 gh_edit_view_mode: "tree"
@@ -55,7 +55,7 @@ heading_anchors: true
 # Aux links for top of page
 aux_links:
   "Cursor Admin API Exporter on GitHub":
-    - "https://github.com/yourusername/cursor-admin-api-exporter"
+    - "https://github.com/matanbaruch/cursor-admin-api-exporter"
 
 aux_links_new_tab: true
 
