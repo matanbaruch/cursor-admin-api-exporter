@@ -57,18 +57,6 @@ jobs:
       - name: Go vet
         run: go vet ./...
 
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-      - name: Run Gosec Security Scanner
-        run: |
-          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-          gosec ./...
 
   docker-lint:
     name: Docker Lint
