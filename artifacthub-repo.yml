@@ -6,6 +6,7 @@
 # repositoryID will be filled by Artifact Hub after the repository is added
 # to enable the verified publisher status
 
+repositoryID: 27370928-a408-4fca-b797-654c100d59b4
 owners:
   - name: "Matan Baruch"
     email: "matan.baruch@example.com"
