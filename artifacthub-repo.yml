@@ -1,0 +1,11 @@
+# Artifact Hub repository metadata file
+# This file allows publishers to add metadata for their repositories
+# https://artifacthub.io/docs/topics/repositories/
+
+# Repository metadata for Cursor Admin API Exporter
+# repositoryID will be filled by Artifact Hub after the repository is added
+# to enable the verified publisher status
+
+owners:
+  - name: "Matan Baruch"
+    email: "matan.baruch@example.com"
