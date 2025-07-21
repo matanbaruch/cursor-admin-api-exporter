@@ -239,7 +239,7 @@ func TestCursorClient_GetUsageEvents(t *testing.T) {
 	defer server.Close()
 
 	client := NewCursorClient(server.URL, "test-token")
-	events, err := client.GetUsageEvents("john@example.com", 50, 0)
+	events, err := client.GetUsageEvents("john@example.com", 50, 0, "", "")
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
@@ -281,7 +281,7 @@ func TestCursorClient_ErrorHandling(t *testing.T) {
 		t.Error("Expected error for unauthorized request")
 	}
 
-	_, err = client.GetUsageEvents("test@example.com", 50, 0)
+	_, err = client.GetUsageEvents("test@example.com", 50, 0, "", "")
 	if err == nil {
 		t.Error("Expected error for unauthorized request")
 	}

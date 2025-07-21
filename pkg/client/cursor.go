@@ -72,14 +72,14 @@ type UsageEventsResponse struct {
 }
 
 type aggregatedData struct {
-	linesAdded       int
-	linesDeleted     int
-	totalAccepts     int
-	totalRejects     int
-	tabsUsed         int
-	composerUsed     int
-	chatRequests     int
-	modelCounts      map[string]int
+	linesAdded      int
+	linesDeleted    int
+	totalAccepts    int
+	totalRejects    int
+	tabsUsed        int
+	composerUsed    int
+	chatRequests    int
+	modelCounts     map[string]int
 	extensionCounts map[string]int
 }
 
@@ -179,16 +179,16 @@ func (c *CursorClient) GetDailyUsage(startDate, endDate string) ([]DailyUsage, e
 
 	var response struct {
 		Data []struct {
-			Date                     int64  `json:"date"`
-			TotalLinesAdded          int    `json:"totalLinesAdded"`
-			TotalLinesDeleted        int    `json:"totalLinesDeleted"`
-			TotalAccepts             int    `json:"totalAccepts"`
-			TotalRejects             int    `json:"totalRejects"`
-			TotalTabsAccepted        int    `json:"totalTabsAccepted"`
-			ComposerRequests         int    `json:"composerRequests"`
-			ChatRequests             int    `json:"chatRequests"`
-			MostUsedModel            string `json:"mostUsedModel"`
-			TabMostUsedExtension     string `json:"tabMostUsedExtension"`
+			Date                 int64  `json:"date"`
+			TotalLinesAdded      int    `json:"totalLinesAdded"`
+			TotalLinesDeleted    int    `json:"totalLinesDeleted"`
+			TotalAccepts         int    `json:"totalAccepts"`
+			TotalRejects         int    `json:"totalRejects"`
+			TotalTabsAccepted    int    `json:"totalTabsAccepted"`
+			ComposerRequests     int    `json:"composerRequests"`
+			ChatRequests         int    `json:"chatRequests"`
+			MostUsedModel        string `json:"mostUsedModel"`
+			TabMostUsedExtension string `json:"tabMostUsedExtension"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(body, &response); err != nil {
@@ -200,7 +200,7 @@ func (c *CursorClient) GetDailyUsage(startDate, endDate string) ([]DailyUsage, e
 		dateStr := time.UnixMilli(d.Date).Format("2006-01-02")
 		if _, ok := aggMap[dateStr]; !ok {
 			aggMap[dateStr] = &aggregatedData{
-				modelCounts:      make(map[string]int),
+				modelCounts:     make(map[string]int),
 				extensionCounts: make(map[string]int),
 			}
 		}
@@ -365,16 +365,16 @@ func (c *CursorClient) GetUsageEvents(userEmail string, limit int, offset int, s
 
 		var response struct {
 			UsageEvents []struct {
-				Timestamp        string `json:"timestamp"`
-				Model            string `json:"model"`
-				KindLabel        string `json:"kindLabel"`
-				TokenUsage       *struct {
+				Timestamp  string `json:"timestamp"`
+				Model      string `json:"model"`
+				KindLabel  string `json:"kindLabel"`
+				TokenUsage *struct {
 					InputTokens      int `json:"inputTokens"`
 					OutputTokens     int `json:"outputTokens"`
 					CacheWriteTokens int `json:"cacheWriteTokens"`
 					CacheReadTokens  int `json:"cacheReadTokens"`
 				} `json:"tokenUsage"`
-				UserEmail        string `json:"userEmail"`
+				UserEmail string `json:"userEmail"`
 			} `json:"usageEvents"`
 			Pagination struct {
 				HasNextPage bool `json:"hasNextPage"`
