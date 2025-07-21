@@ -158,7 +158,7 @@ func (c *CursorClient) GetSpending(limit int, offset int) ([]SpendingData, error
 	if limit > 0 {
 		params.Set("limit", fmt.Sprintf("%d", limit))
 	}
-	if offset > 0 {
+	if offset >= 0 {
 		params.Set("offset", fmt.Sprintf("%d", offset))
 	}
 
@@ -183,7 +183,7 @@ func (c *CursorClient) GetUsageEvents(userEmail string, limit int, offset int) (
 	if limit > 0 {
 		params.Set("limit", fmt.Sprintf("%d", limit))
 	}
-	if offset > 0 {
+	if offset >= 0 {
 		params.Set("offset", fmt.Sprintf("%d", offset))
 	}
 
