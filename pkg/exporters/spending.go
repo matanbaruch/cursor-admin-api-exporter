@@ -10,8 +10,8 @@ import (
 type SpendingExporter struct {
 	client *client.CursorClient
 
-	totalSpending       *prometheus.Desc
-	spendingByMember    *prometheus.Desc
+	totalSpending           *prometheus.Desc
+	spendingByMember        *prometheus.Desc
 	premiumRequestsByMember *prometheus.Desc
 	totalPremiumRequests    *prometheus.Desc
 }

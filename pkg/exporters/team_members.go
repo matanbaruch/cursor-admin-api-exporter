@@ -10,7 +10,7 @@ import (
 type TeamMembersExporter struct {
 	client *client.CursorClient
 
-	totalMembers *prometheus.Desc
+	totalMembers  *prometheus.Desc
 	membersByRole *prometheus.Desc
 }
 

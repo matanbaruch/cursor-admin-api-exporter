@@ -36,18 +36,18 @@ type DailyUsage struct {
 }
 
 type SpendingData struct {
-	MemberEmail      string  `json:"member_email"`
-	SpendCents       int     `json:"spend_cents"`
-	PremiumRequests  int     `json:"premium_requests"`
-	Date             string  `json:"date"`
+	MemberEmail     string `json:"member_email"`
+	SpendCents      int    `json:"spend_cents"`
+	PremiumRequests int    `json:"premium_requests"`
+	Date            string `json:"date"`
 }
 
 type UsageEvent struct {
-	EventType       string    `json:"event_type"`
-	UserEmail       string    `json:"user_email"`
-	TokensConsumed  int       `json:"tokens_consumed"`
-	Model           string    `json:"model"`
-	Timestamp       time.Time `json:"timestamp"`
+	EventType      string    `json:"event_type"`
+	UserEmail      string    `json:"user_email"`
+	TokensConsumed int       `json:"tokens_consumed"`
+	Model          string    `json:"model"`
+	Timestamp      time.Time `json:"timestamp"`
 }
 
 type TeamMembersResponse struct {
@@ -80,7 +80,7 @@ func NewCursorClient(baseURL, apiToken string) *CursorClient {
 
 func (c *CursorClient) makeRequest(endpoint string, params url.Values) ([]byte, error) {
 	fullURL := fmt.Sprintf("%s%s", c.BaseURL, endpoint)
-	
+
 	if params != nil {
 		fullURL = fmt.Sprintf("%s?%s", fullURL, params.Encode())
 	}
@@ -99,7 +99,11 @@ func (c *CursorClient) makeRequest(endpoint string, params url.Values) ([]byte, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logrus.WithError(err).Debug("Failed to close response body")
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

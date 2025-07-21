@@ -4,7 +4,7 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
 # Install git and ca-certificates
-RUN apk add --no-cache git ca-certificates
+RUN apk add --no-cache git=2.45.2-r0 ca-certificates=20240705-r0
 
 # Copy go mod files
 COPY go.mod go.sum ./
@@ -19,9 +19,9 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cursor-admin-api-exporter .
 
 # Final stage
-FROM alpine:latest
+FROM alpine:3.20
 
-RUN apk --no-cache add ca-certificates wget
+RUN apk --no-cache add ca-certificates=20240705-r0 wget=1.24.5-r0
 
 # Create app directory with proper permissions for nobody user
 RUN mkdir -p /app && \

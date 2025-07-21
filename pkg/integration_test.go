@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package pkg
@@ -37,7 +38,7 @@ func TestIntegration_CursorAPIExporter(t *testing.T) {
 	t.Run("GetDailyUsage", func(t *testing.T) {
 		endDate := time.Now().Format("2006-01-02")
 		startDate := time.Now().AddDate(0, 0, -7).Format("2006-01-02")
-		
+
 		usage, err := cursorClient.GetDailyUsage(startDate, endDate)
 		if err != nil {
 			t.Fatalf("Failed to get daily usage: %v", err)
@@ -64,14 +65,14 @@ func TestIntegration_CursorAPIExporter(t *testing.T) {
 	// Test exporters
 	t.Run("ExporterMetrics", func(t *testing.T) {
 		exporter := exporters.NewCursorExporter(apiURL, apiToken)
-		
+
 		// Test Describe
 		descCh := make(chan *prometheus.Desc, 100)
 		go func() {
 			exporter.Describe(descCh)
 			close(descCh)
 		}()
-		
+
 		descCount := 0
 		for desc := range descCh {
 			if desc == nil {
@@ -79,18 +80,18 @@ func TestIntegration_CursorAPIExporter(t *testing.T) {
 			}
 			descCount++
 		}
-		
+
 		if descCount == 0 {
 			t.Error("No metric descriptions received")
 		}
-		
+
 		// Test Collect
 		metricCh := make(chan prometheus.Metric, 100)
 		go func() {
 			exporter.Collect(metricCh)
 			close(metricCh)
 		}()
-		
+
 		metricCount := 0
 		for metric := range metricCh {
 			if metric == nil {
@@ -98,11 +99,11 @@ func TestIntegration_CursorAPIExporter(t *testing.T) {
 			}
 			metricCount++
 		}
-		
+
 		if metricCount == 0 {
 			t.Error("No metrics collected")
 		}
-		
+
 		t.Logf("Collected %d metrics", metricCount)
 	})
 }

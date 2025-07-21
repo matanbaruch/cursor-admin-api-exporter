@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/matanbaruch/cursor-admin-api-exporter/pkg/client"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestNewCursorExporter(t *testing.T) {
@@ -91,7 +91,9 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 					{Name: "Jane Smith", Email: "jane@example.com", Role: "member"},
 				},
 			}
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		case "/admin/usage/daily":
 			response := client.DailyUsageResponse{
 				Usage: []client.DailyUsage{
@@ -108,7 +110,9 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 					},
 				},
 			}
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		case "/admin/spending":
 			response := client.SpendingResponse{
 				Spending: []client.SpendingData{
@@ -121,7 +125,9 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 				},
 				Total: 1000,
 			}
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		case "/admin/usage/events":
 			response := client.UsageEventsResponse{
 				Events: []client.UsageEvent{
@@ -135,7 +141,9 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 				},
 				Total: 1,
 			}
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		default:
 			http.NotFound(w, r)
 		}
@@ -193,11 +201,11 @@ func TestCursorExporter_Collect_HandlesErrors(t *testing.T) {
 func TestCursorExporter_Collect_HandlesPanics(t *testing.T) {
 	invalidClient := client.NewCursorClient("http://invalid", "token")
 	exporter := &CursorExporter{
-		client:               nil,
-		teamMembersExporter:  NewTeamMembersExporter(invalidClient),
-		dailyUsageExporter:   NewDailyUsageExporter(invalidClient),
-		spendingExporter:     NewSpendingExporter(invalidClient),
-		usageEventsExporter:  NewUsageEventsExporter(invalidClient),
+		client:              nil,
+		teamMembersExporter: NewTeamMembersExporter(invalidClient),
+		dailyUsageExporter:  NewDailyUsageExporter(invalidClient),
+		spendingExporter:    NewSpendingExporter(invalidClient),
+		usageEventsExporter: NewUsageEventsExporter(invalidClient),
 		scrapeDuration: prometheus.NewHistogram(
 			prometheus.HistogramOpts{
 				Name: "cursor_exporter_scrape_duration_seconds",
@@ -254,13 +262,21 @@ func TestCursorExporter_ScrapeMetrics(t *testing.T) {
 
 		switch r.URL.Path {
 		case "/admin/team/members":
-			json.NewEncoder(w).Encode(client.TeamMembersResponse{Members: []client.TeamMember{}})
+			if err := json.NewEncoder(w).Encode(client.TeamMembersResponse{Members: []client.TeamMember{}}); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		case "/admin/usage/daily":
-			json.NewEncoder(w).Encode(client.DailyUsageResponse{Usage: []client.DailyUsage{}})
+			if err := json.NewEncoder(w).Encode(client.DailyUsageResponse{Usage: []client.DailyUsage{}}); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		case "/admin/spending":
-			json.NewEncoder(w).Encode(client.SpendingResponse{Spending: []client.SpendingData{}})
+			if err := json.NewEncoder(w).Encode(client.SpendingResponse{Spending: []client.SpendingData{}}); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		case "/admin/usage/events":
-			json.NewEncoder(w).Encode(client.UsageEventsResponse{Events: []client.UsageEvent{}})
+			if err := json.NewEncoder(w).Encode(client.UsageEventsResponse{Events: []client.UsageEvent{}}); err != nil {
+				t.Logf("Failed to encode response: %v", err)
+			}
 		default:
 			http.NotFound(w, r)
 		}

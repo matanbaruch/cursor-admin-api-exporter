@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/matanbaruch/cursor-admin-api-exporter/pkg/client"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestNewTeamMembersExporter(t *testing.T) {
@@ -71,7 +71,9 @@ func TestTeamMembersExporter_Collect(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Logf("Failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -104,7 +106,9 @@ func TestTeamMembersExporter_Collect_EmptyResponse(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Logf("Failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 

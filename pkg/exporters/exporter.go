@@ -10,11 +10,11 @@ import (
 )
 
 type CursorExporter struct {
-	client               *client.CursorClient
-	teamMembersExporter  *TeamMembersExporter
-	dailyUsageExporter   *DailyUsageExporter
-	spendingExporter     *SpendingExporter
-	usageEventsExporter  *UsageEventsExporter
+	client              *client.CursorClient
+	teamMembersExporter *TeamMembersExporter
+	dailyUsageExporter  *DailyUsageExporter
+	spendingExporter    *SpendingExporter
+	usageEventsExporter *UsageEventsExporter
 
 	scrapeDuration prometheus.Histogram
 	scrapeErrors   prometheus.Counter
@@ -24,11 +24,11 @@ func NewCursorExporter(baseURL, token string) *CursorExporter {
 	cursorClient := client.NewCursorClient(baseURL, token)
 
 	return &CursorExporter{
-		client:               cursorClient,
-		teamMembersExporter:  NewTeamMembersExporter(cursorClient),
-		dailyUsageExporter:   NewDailyUsageExporter(cursorClient),
-		spendingExporter:     NewSpendingExporter(cursorClient),
-		usageEventsExporter:  NewUsageEventsExporter(cursorClient),
+		client:              cursorClient,
+		teamMembersExporter: NewTeamMembersExporter(cursorClient),
+		dailyUsageExporter:  NewDailyUsageExporter(cursorClient),
+		spendingExporter:    NewSpendingExporter(cursorClient),
+		usageEventsExporter: NewUsageEventsExporter(cursorClient),
 
 		scrapeDuration: prometheus.NewHistogram(
 			prometheus.HistogramOpts{

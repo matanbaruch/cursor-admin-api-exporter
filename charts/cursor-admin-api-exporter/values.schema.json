@@ -620,13 +620,26 @@
           "default": false,
           "description": "Create ServiceMonitor resource for Prometheus Operator"
         },
-        "additionalLabels": {
+        "labels": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
           "default": {},
           "description": "Additional labels for ServiceMonitor"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "description": "Additional annotations for ServiceMonitor"
+        },
+        "honorLabels": {
+          "type": "boolean",
+          "default": false,
+          "description": "HonorLabels chooses the metric's labels on collisions with target labels"
         },
         "interval": {
           "type": "string",
@@ -777,6 +790,131 @@
       },
       "additionalProperties": false,
       "description": "Deployment strategy"
+    },
+    "hpa": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable horizontal pod autoscaling"
+        },
+        "minReplicas": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Minimum number of replicas"
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10,
+          "description": "Maximum number of replicas"
+        },
+        "targetCPUUtilizationPercentage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Target CPU utilization percentage"
+        },
+        "targetMemoryUtilizationPercentage": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Target memory utilization percentage"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Horizontal Pod Autoscaler configuration"
+    },
+    "probes": {
+      "type": "object",
+      "properties": {
+        "readiness": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable readiness probe"
+            },
+            "initialDelaySeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 10,
+              "description": "Initial delay seconds"
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "description": "Period seconds"
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5,
+              "description": "Timeout seconds"
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3,
+              "description": "Failure threshold"
+            },
+            "successThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "Success threshold"
+            }
+          },
+          "additionalProperties": false
+        },
+        "liveness": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable liveness probe"
+            },
+            "initialDelaySeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 30,
+              "description": "Initial delay seconds"
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "description": "Period seconds"
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5,
+              "description": "Timeout seconds"
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3,
+              "description": "Failure threshold"
+            },
+            "successThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "Success threshold"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Probes configuration"
     }
   },
   "additionalProperties": false

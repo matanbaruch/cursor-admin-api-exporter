@@ -10,11 +10,11 @@ import (
 type UsageEventsExporter struct {
 	client *client.CursorClient
 
-	totalEvents        *prometheus.Desc
-	eventsByType       *prometheus.Desc
-	eventsByUser       *prometheus.Desc
-	eventsByModel      *prometheus.Desc
-	tokensConsumed     *prometheus.Desc
+	totalEvents           *prometheus.Desc
+	eventsByType          *prometheus.Desc
+	eventsByUser          *prometheus.Desc
+	eventsByModel         *prometheus.Desc
+	tokensConsumed        *prometheus.Desc
 	tokensConsumedByModel *prometheus.Desc
 	tokensConsumedByUser  *prometheus.Desc
 }
