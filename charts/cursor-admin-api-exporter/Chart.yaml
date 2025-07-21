@@ -8,7 +8,7 @@ version: 0.1.6
 
 appVersion: "0.1.6"
 
-icon: https://cursor.com/favicon.ico
+icon: https://cursor.com/favicon.svg
 
 home: https://github.com/matanbaruch/cursor-admin-api-exporter
 sources:
