@@ -1,0 +1,134 @@
+# GitHub Pages configuration
+title: "Cursor Admin API Exporter"
+description: "A Prometheus exporter for Cursor Admin API that provides comprehensive metrics about your Cursor usage"
+url: "https://yourusername.github.io"
+baseurl: "/cursor-admin-api-exporter"
+
+# Theme - Just the Docs with ReadTheDocs styling
+remote_theme: just-the-docs/just-the-docs
+
+# ReadTheDocs-style color scheme
+color_scheme: blue
+
+# Logo and favicon - uncomment when logo is available
+# logo: "/assets/images/logo.png"
+
+# Search configuration
+search_enabled: true
+search:
+  heading_level: 2
+  previews: 2
+  preview_words_before: 3
+  preview_words_after: 3
+  tokenizer_separator: /[\s/]+/
+  rel_url: true
+  button: false
+
+# Navigation
+nav_sort: order
+nav_external_links:
+  - title: "GitHub Repository"
+    url: "https://github.com/yourusername/cursor-admin-api-exporter"
+    hide_icon: false
+  - title: "Cursor Documentation"
+    url: "https://docs.cursor.so"
+    hide_icon: false
+
+# Footer
+footer_content: "Copyright &copy; 2024 Cursor Admin API Exporter. Distributed under the MIT License."
+
+# GitHub integration
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/yourusername/cursor-admin-api-exporter"
+gh_edit_branch: "main"
+gh_edit_source: docs
+gh_edit_view_mode: "tree"
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Heading anchors
+heading_anchors: true
+
+# Aux links for top of page
+aux_links:
+  "Cursor Admin API Exporter on GitHub":
+    - "https://github.com/yourusername/cursor-admin-api-exporter"
+
+aux_links_new_tab: true
+
+# Plugins
+plugins:
+  - jekyll-default-layout
+  - jekyll-github-metadata
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-relative-links
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-titles-from-headings
+
+# Markdown
+markdown: kramdown
+kramdown:
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+# Collections for organizing content
+collections:
+  installation:
+    output: true
+  usage:
+    output: true
+  reference:
+    output: true
+  technical:
+    output: true
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "installation"
+    values:
+      layout: "default"
+      parent: "Installation"
+  - scope:
+      path: ""
+      type: "usage"
+    values:
+      layout: "default"
+      parent: "Usage"
+  - scope:
+      path: ""
+      type: "reference"
+    values:
+      layout: "default"
+      parent: "Reference"
+  - scope:
+      path: ""
+      type: "technical"
+    values:
+      layout: "default"
+      parent: "Technical"
+
+# Exclude from processing
+exclude:
+  - "*.gemspec"
+  - "*.gem"
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/

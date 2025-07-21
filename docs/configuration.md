@@ -1,3 +1,9 @@
+---
+title: Configuration
+nav_order: 3
+layout: default
+---
+
 # Configuration Guide
 
 This guide covers all configuration options for the Cursor Admin API Exporter.

@@ -1,3 +1,9 @@
+---
+title: Getting Started
+nav_order: 2
+layout: default
+---
+
 # Getting Started
 
 This guide will help you get the Cursor Admin API Exporter up and running quickly.

@@ -1,3 +1,9 @@
+---
+title: Troubleshooting
+nav_order: 5
+layout: default
+---
+
 # Troubleshooting Guide
 
 This guide helps you diagnose and resolve common issues with the Cursor Admin API Exporter.

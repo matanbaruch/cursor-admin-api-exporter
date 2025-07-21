@@ -1,3 +1,9 @@
+---
+title: Metrics
+nav_order: 4
+layout: default
+---
+
 # Metrics Reference
 
 This document provides a comprehensive reference for all metrics exported by the Cursor Admin API Exporter.
