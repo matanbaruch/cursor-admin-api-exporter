@@ -4,9 +4,9 @@ description: A Helm chart for Cursor Admin API Exporter - Prometheus exporter fo
 
 type: application
 
-version: 0.1.0
+version: 0.1.1
 
-appVersion: "0.1.0"
+appVersion: "0.1.1"
 
 icon: https://cursor.com/favicon.ico
 
