@@ -201,7 +201,7 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 						CacheWriteTokens int `json:"cacheWriteTokens"`
 						CacheReadTokens  int `json:"cacheReadTokens"`
 					} `json:"tokenUsage"`
-					UserEmail  string `json:"userEmail"`
+					UserEmail string `json:"userEmail"`
 				} `json:"usageEvents"`
 				Pagination struct {
 					HasNextPage bool `json:"hasNextPage"`
@@ -217,7 +217,7 @@ func TestCursorExporter_Collect_WithMockServer(t *testing.T) {
 						CacheWriteTokens int `json:"cacheWriteTokens"`
 						CacheReadTokens  int `json:"cacheReadTokens"`
 					} `json:"tokenUsage"`
-					UserEmail  string `json:"userEmail"`
+					UserEmail string `json:"userEmail"`
 				}{
 					{
 						Timestamp: strconv.FormatInt(time.Now().UnixMilli(), 10),
