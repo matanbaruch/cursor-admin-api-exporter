@@ -1,12 +1,34 @@
 # Cursor Admin API Exporter
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<img width="673" height="375" alt="image" src="https://github.com/user-attachments/assets/9bedbbbd-8255-4c34-ae95-4e0813a14f02" />
+
+
+<!-- Build and Quality Badges -->
+
+[![Lint](https://github.com/matanbaruch/cursor-admin-api-exporter/actions/workflows/lint.yml/badge.svg)](https://github.com/matanbaruch/cursor-admin-api-exporter/actions/workflows/lint.yml)
+[![Release](https://github.com/matanbaruch/cursor-admin-api-exporter/actions/workflows/release.yml/badge.svg)](https://github.com/matanbaruch/cursor-admin-api-exporter/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/matanbaruch/cursor-admin-api-exporter)](https://goreportcard.com/report/github.com/matanbaruch/cursor-admin-api-exporter)
-[![Coverage Status](https://codecov.io/gh/matanbaruch/cursor-admin-api-exporter/branch/main/graph/badge.svg)](https://codecov.io/gh/matanbaruch/cursor-admin-api-exporter)
-[![Tests](https://github.com/matanbaruch/cursor-admin-api-exporter/workflows/Tests/badge.svg)](https://github.com/matanbaruch/cursor-admin-api-exporter/actions?query=workflow%3ATests)
-[![Coverage](https://github.com/matanbaruch/cursor-admin-api-exporter/workflows/Coverage/badge.svg)](https://github.com/matanbaruch/cursor-admin-api-exporter/actions?query=workflow%3ACoverage)
-[![Docker Pulls](https://img.shields.io/docker/pulls/ghcr.io/matanbaruch/cursor-admin-api-exporter)](https://github.com/matanbaruch/cursor-admin-api-exporter/pkgs/container/cursor-admin-api-exporter)
-[![Helm Chart](https://img.shields.io/badge/Helm-Chart-blue)](https://github.com/matanbaruch/cursor-admin-api-exporter/pkgs/container/cursor-admin-api-exporter%2Fcharts%2Fcursor-admin-api-exporter)
+
+<!-- Language and Tech Stack -->
+
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
+
+<!-- Version and Distribution -->
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/matanbaruch/cursor-admin-api-exporter)](https://github.com/matanbaruch/cursor-admin-api-exporter/releases/latest)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/matanbaruch/cursor-admin-api-exporter)](https://github.com/matanbaruch/cursor-admin-api-exporter/blob/main/go.mod)
+[![License](https://img.shields.io/github/license/matanbaruch/cursor-admin-api-exporter)](https://github.com/matanbaruch/cursor-admin-api-exporter/blob/main/LICENSE)
+
+<!-- GitHub Stats -->
+
+[![GitHub stars](https://img.shields.io/github/stars/matanbaruch/cursor-admin-api-exporter?style=social)](https://github.com/matanbaruch/cursor-admin-api-exporter/stargazers)
+
+<!-- Distribution Platforms -->
+
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/cursor-admin-api-exporter)](https://artifacthub.io/packages/search?repo=cursor-admin-api-exporter)
 
 A Prometheus exporter for Cursor Admin API metrics, providing comprehensive monitoring and observability for your Cursor team's usage, spending, and productivity metrics.
 
