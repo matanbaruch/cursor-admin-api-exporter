@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2025-07-21
+
 ## [0.1.6] - 2025-07-21
 
 ## [0.1.5] - 2025-07-21
@@ -58,5 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.4]: https://github.com/matanbaruch/cursor-admin-api-exporter/compare/v0.1.3...v0.1.4
 [0.1.5]: https://github.com/matanbaruch/cursor-admin-api-exporter/compare/v0.1.4...v0.1.5
 [0.1.6]: https://github.com/matanbaruch/cursor-admin-api-exporter/compare/v0.1.5...v0.1.6
-[Unreleased]: https://github.com/matanbaruch/cursor-admin-api-exporter/compare/v0.1.6...HEAD
+[0.1.7]: https://github.com/matanbaruch/cursor-admin-api-exporter/compare/v0.1.6...v0.1.7
+[Unreleased]: https://github.com/matanbaruch/cursor-admin-api-exporter/compare/v0.1.7...HEAD
 [0.1.0]: https://github.com/matanbaruch/cursor-admin-api-exporter/releases/tag/v0.1.0
