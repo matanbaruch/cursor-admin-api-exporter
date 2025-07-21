@@ -31,7 +31,7 @@ nav_external_links:
     url: "https://github.com/matanbaruch/cursor-admin-api-exporter"
     hide_icon: false
   - title: "Cursor Documentation"
-    url: "https://docs.cursor.so"
+    url: "https://docs.cursor.com"
     hide_icon: false
 
 # Footer

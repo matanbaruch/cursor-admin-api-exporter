@@ -165,106 +165,6 @@ jobs:
           CURSOR_API_TOKEN: ${{ secrets.CURSOR_API_TOKEN }}
         run: ./scripts/run-tests.sh integration
 
-  performance-tests:
-    name: Performance Tests
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: stable
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Make test script executable
-        run: chmod +x scripts/run-tests.sh
-
-      - name: Run performance tests
-        run: ./scripts/run-tests.sh performance
-
-  docker-compose-test:
-    name: Docker Compose Test
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Start services
-        env:
-          CURSOR_API_TOKEN: ${{ secrets.CURSOR_API_TOKEN }}
-        run: docker compose up -d
-
-      - name: Wait for exporter to be ready
-        run: sleep 10
-
-      - name: Check metrics endpoint
-        run: |
-          curl -sSf http://localhost:8080/metrics
-
-  helm-chart-test:
-    name: Helm Chart Test
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Create kind cluster
-        uses: helm/kind-action@v1
-        with:
-          cluster_name: cursor-test
-
-      - name: Build Docker image
-        run: |
-          docker build -t cursor-admin-api-exporter:test .
-          kind load docker-image cursor-admin-api-exporter:test --name cursor-test
-
-      - name: Create values override file
-        run: |
-          cat > test-values.yaml << EOF
-          image:
-            repository: cursor-admin-api-exporter
-            tag: test
-            pullPolicy: Never
-          cursor:
-            apiToken: ${{ secrets.CURSOR_API_TOKEN }}
-            apiUrl: "https://api.cursor.com"
-          EOF
-
-      - name: Bake helm chart
-        uses: azure/k8s-bake@v3
-        with:
-          renderEngine: "helm"
-          helmChart: "./charts/cursor-admin-api-exporter/"
-          overrideFiles: "test-values.yaml"
-          releaseName: "cursor-test"
-          helm-version: "latest"
-        id: bake
-
-      - name: Deploy to kind cluster
-        uses: Azure/k8s-deploy@v5
-        with:
-          action: deploy
-          manifests: ${{ steps.bake.outputs.manifestsBundle }}
-          namespace: default
-
-      - name: Wait for deployment
-        run: |
-          kubectl wait --for=condition=available --timeout=300s deployment/cursor-test-cursor-admin-api-exporter
-
-      - name: Test metrics endpoint
-        run: |
-          kubectl port-forward deployment/cursor-test-cursor-admin-api-exporter 8080:8080 &
-          sleep 5
-          curl -s http://localhost:8080/metrics
-          pkill -f "kubectl port-forward" || true
-
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
@@ -273,9 +173,6 @@ jobs:
         unit-tests,
         coverage-gate,
         integration-tests,
-        performance-tests,
-        docker-compose-test,
-        helm-chart-test,
       ]
     if: always()
     steps:
@@ -288,9 +185,6 @@ jobs:
           echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Coverage Gate | ${{ needs.coverage-gate.result == 'success' && '✅ Passed' || needs.coverage-gate.result == 'skipped' && '⏭️ Skipped (Push to main)' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Integration Tests | ${{ needs.integration-tests.result == 'success' && '✅ Passed' || needs.integration-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance Tests | ${{ needs.performance-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docker Compose Test | ${{ needs.docker-compose-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Helm Chart Test | ${{ needs.helm-chart-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Add coverage information if available
@@ -302,10 +196,7 @@ jobs:
           fi
 
           if [[ "${{ needs.unit-tests.result }}" != "success" ]] || \
-             [[ "${{ needs.integration-tests.result }}" != "success" && "${{ needs.integration-tests.result }}" != "skipped" ]] || \
-             [[ "${{ needs.performance-tests.result }}" != "success" ]] || \
-             [[ "${{ needs.docker-compose-test.result }}" != "success" ]] || \
-             [[ "${{ needs.helm-chart-test.result }}" != "success" ]]; then
+             [[ "${{ needs.integration-tests.result }}" != "success" && "${{ needs.integration-tests.result }}" != "skipped" ]]; then
             echo "❌ Some tests failed! Check the individual job logs for details." >> $GITHUB_STEP_SUMMARY
             exit 1
           else

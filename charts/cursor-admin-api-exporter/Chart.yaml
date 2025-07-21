@@ -4,9 +4,9 @@ description: A Helm chart for Cursor Admin API Exporter - Prometheus exporter fo
 
 type: application
 
-version: 0.1.2
+version: 0.1.3
 
-appVersion: "0.1.2"
+appVersion: "0.1.3"
 
 icon: https://cursor.com/favicon.ico
 
@@ -63,3 +63,5 @@ annotations:
       description: "Comprehensive Helm chart with configurable values"
     - kind: added
       description: "Security features including external secrets support"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/containsSecurityUpdates: "false"
