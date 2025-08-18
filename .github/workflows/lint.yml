@@ -21,7 +21,7 @@ jobs:
     name: Go Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
         with:
           go-version: stable
@@ -35,7 +35,7 @@ jobs:
     name: Go Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
         with:
           go-version: stable
@@ -52,7 +52,7 @@ jobs:
     name: Go Vet
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-go@v5
         with:
           go-version: stable
@@ -64,7 +64,7 @@ jobs:
     name: Helm Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
