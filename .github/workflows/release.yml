@@ -22,7 +22,7 @@ jobs:
       new_tag: ${{ steps.bump.outputs.new_tag }}
       current_version: ${{ steps.get_version.outputs.current_version }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -58,7 +58,7 @@ jobs:
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
@@ -110,7 +110,7 @@ jobs:
       id-token: write
       attestations: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
@@ -151,7 +151,7 @@ jobs:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
@@ -194,7 +194,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -232,7 +232,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
@@ -255,7 +255,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
